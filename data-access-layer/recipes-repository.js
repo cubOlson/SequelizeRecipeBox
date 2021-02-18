@@ -28,7 +28,8 @@ async function getTenNewestRecipes() {
   //   so read the documentation carefully.)
   //
   // The general form of this is
-  //
+  const findRecipe = await Recipe.findAll({ limit: 10, order: [['createdAt', 'DESC']]});
+  return findRecipe;
   // Model.findAll({
   //     { ... specify your options here... }
   // });
@@ -54,6 +55,17 @@ async function getRecipeById(id) {
   //     }
   //   ]
   // });
+    const getRecipe = await Recipe.findByPk(id, {
+    include: [
+      Instruction,
+      {
+        model: Ingredient,
+        include: [MeasurementUnit]
+      }
+    ]
+  });
+
+  return getRecipe;
   //
   // Look at the data model in the instructions to see the relations between the
   // Recipe table and the Ingredients and Instructions table. Figure out which
@@ -78,6 +90,9 @@ async function deleteRecipe(id) {
   // destroy it. Or, use the Model.destroy({ ... where ... }) method that you
   // saw in the video.
   //
+  const rec = await Recipe.findByPk(id);
+  await rec.destroy();
+
   // Docs: https://sequelize.org/master/class/lib/model.js~Model.html#instance-method-destroy
 }
 
@@ -85,13 +100,23 @@ async function createNewRecipe(title) {
   // Use the create method of the Recipe object to create a new object and
   // return it.
   //
+  const createRec = await Recipe.create({title});
+  return createRec;
   // Docs: https://sequelize.org/v5/manual/instances.html#creating-persistent-instances
 }
 
 async function searchRecipes(term) {
   // Use the findAll method of the Recipe object to search for recipes with the
   // given term in its title
-  //
+  const searchRec = await Recipe.findAll({
+    where: {
+      title: {
+        [Op.iLike]: term,
+      },
+    },
+  });
+
+  return searchRec;
   // Docs: https://sequelize.org/v5/manual/querying.html
 }
 
